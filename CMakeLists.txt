@@ -4,32 +4,32 @@
 cmake_minimum_required (VERSION 3.8)
 
 project ("ShaderCompiler")
+set(CMAKE_CXX_STANDARD 23)
 
 
-set(GLSLANG_INSTALL_DIR "C:/Program Files/glslang-12.2.0/build/$(pwd)/install")
+cmake_policy(SET CMP0079 NEW)
 
 
-# 包含子项目。
+add_executable (ShaderCompiler "ShaderCompiler.cpp" "ShaderCompiler.h")
 
-set(SPIRV-Tools_DIR "C:/Program Files/glslang-12.2.0/build/$(pwd)/install/SPIRV-Tools/cmake")
-set(SPIRV-Tools-opt_DIR "C:/Program Files/glslang-12.2.0/build/$(pwd)/install/SPIRV-Tools-opt/cmake")
-set(glslang_DIR "C:/Program Files/glslang-12.2.0/build/$(pwd)/install/lib/cmake/glslang")
+if (CMAKE_VERSION VERSION_GREATER 3.12)
+  set_property(TARGET ShaderCompiler PROPERTY CXX_STANDARD 20)
+endif()
 
-find_package(SPIRV-Tools REQUIRED)
-find_package(SPIRV-Tools-opt REQUIRED)
-find_package(glslang REQUIRED)
+set(GLSLANGLIBS 
+    GenericCodeGend
+    MachineIndependentd
+    glslangd
+    HLSLd
+    OSDependentd
+    OGLCompilerd
+    SPIRVd
+    SPIRV-Toolsd
+    SPIRV-Tools-optd
+)
 
-set(GLSLANGLIBS
-    glslang
-    HLSL
-    OSDependent
-    OGLCompiler
-    SPIRV)
-
-    link_directories(${PROJECT_NAME} ${GLSLANGLIBS})
-
-add_subdirectory ("ShaderCompiler")
-
-target_link_directories(${PROJECT_NAME} PUBLIC ${GLSLANG_INSTALL_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE "./lib")
+target_link_directories(${PROJECT_NAME} PRIVATE "./lib/Debug")
+target_link_libraries(${PROJECT_NAME} "${GLSLANGLIBS}")
 
 #target_include_directories(${PROJECT_NAME} PUBLIC ${glslang_INCLUDE_DIRS})
