@@ -194,8 +194,8 @@ namespace vkshc
 
         int ClientInputSemanticsVersion = 100;
 
-        glslang::EShTargetClientVersion VulkanClientVersion = glslang::EShTargetVulkan_1_0;
-        glslang::EShTargetLanguageVersion TargetVersion = glslang::EShTargetSpv_1_0;
+        glslang::EShTargetClientVersion VulkanClientVersion = glslang::EShTargetVulkan_1_1;
+        glslang::EShTargetLanguageVersion TargetVersion = glslang::EShTargetSpv_1_3;
 
         shader.setEnvInput(srcLang, type, client, ClientInputSemanticsVersion);
         shader.setEnvClient(client, VulkanClientVersion);
@@ -291,14 +291,12 @@ namespace vkshc
         std::vector<char> stream;
 
         _StreamWriteSize(stream, cfgCode.size());
-        auto i = stream.size();
         stream.insert(stream.end(), cfgCode.begin(), cfgCode.end());
-        auto i2 = stream.size();
 
         glslang::InitializeProcess();
 
-        auto vertSpv = _CompileShaderToSPIRV(vertCode.c_str(), EShLanguage::EShLangVertex, includePaths);
-        auto fragSpv = _CompileShaderToSPIRV(fragCode.c_str(), EShLanguage::EShLangFragment, includePaths);
+        auto vertSpv = _CompileShaderToSPIRV(vertCode.c_str(), EShLanguage::EShLangVertex, includePaths, compileInfo);
+        auto fragSpv = _CompileShaderToSPIRV(fragCode.c_str(), EShLanguage::EShLangFragment, includePaths, compileInfo);
 
         _StreamWriteSize(stream, vertSpv.size());
         stream.insert(stream.end(), vertSpv.begin(), vertSpv.end());
@@ -324,7 +322,7 @@ namespace vkshc
         return std::filesystem::exists(path) && std::filesystem::exists(vs) && std::filesystem::exists(ps);
     }
 
-    void CompileDir(const std::string& inputDir, const std::vector<string>& otherIncludePaths, const std::string& outputDir)
+    void CompileDir(const std::string& inputDir, const std::vector<string>& otherIncludePaths, const std::string& outputDir, const CompileInfo& compileInfo)
     {
         std::vector<std::filesystem::path> shcfgs;
 
@@ -357,7 +355,7 @@ namespace vkshc
             includer.push_back(dir.string());
 
             auto shader = shcfgFilename; shader.replace_extension();
-            auto data = CompileShader(includer, shader.string(), {});
+            auto data = CompileShader(includer, shader.string(), compileInfo);
 
             auto relative = dir.lexically_relative(inputDirPath);
             auto outTarget = outputDirPath; 
@@ -377,7 +375,10 @@ namespace vkshc
 }
 int main()
 {
-    vkshc::CompileDir(R"(D:\Codes\LearningVk\shader)", { R"(D:\Codes\LearningVk\EngineShader)" }, R"(D:\Codes\LearningVk\OutShader)");
+    vkshc::CompileInfo info;
+    info.Debug = true;
+
+    vkshc::CompileDir(R"(D:\Codes\LearningVk\shader)", {}, R"(D:\Codes\LearningVk\out\build\x64-Debug\shader)", info);
 
     return 0;
 }
