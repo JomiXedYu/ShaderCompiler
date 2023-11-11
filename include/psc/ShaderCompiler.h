@@ -8,6 +8,16 @@
 #include "BinaryFileHeader.h"
 #include "Classes.hpp"
 
+#ifdef _WIN32
+    #ifdef API_EXPORTS
+        #define PSC_API __declspec(dllexport)
+    #else
+        #define PSC_API __declspec(dllimport)
+    #endif
+#else
+#define PSC_API
+#endif
+
 namespace psc
 {
     using IncludePaths = std::vector<std::filesystem::path>;
@@ -19,7 +29,7 @@ namespace psc
         std::vector<std::string> PreDefines;
     };
 
-    class __declspec(dllexport) ShaderCompiler
+    class PSC_API ShaderCompiler
     {
     public:
         virtual std::vector<char> CompileStage(
@@ -36,5 +46,5 @@ namespace psc
 
     };
 
-    extern __declspec(dllexport) std::shared_ptr<ShaderCompiler> CreateShaderCompiler(ApiPlatformType platform);
+    extern PSC_API std::shared_ptr<ShaderCompiler> CreateShaderCompiler(ApiPlatformType platform);
 }
