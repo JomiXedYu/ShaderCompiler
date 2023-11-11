@@ -1,5 +1,5 @@
 ﻿
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.13)
 
 project ("PulsarShaderCompiler")
 set(CMAKE_CXX_STANDARD 23)
@@ -15,6 +15,8 @@ add_subdirectory("src/spirv-cross")
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC "./include")
+
+#target_include_directories(${PROJECT_NAME} PUBLIC "./src/glslang")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE "GenericCodeGen" "MachineIndependent" "glslang" "HLSL" "OSDependent" "OGLCompiler" "SPIRV")
 target_link_libraries(${PROJECT_NAME} PRIVATE "spirv-cross-core" "spirv-cross-glsl")

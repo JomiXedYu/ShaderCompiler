@@ -1,12 +1,8 @@
 ﻿
 #include "psc/ShaderCompiler.h"
-#include <glslang/Include/Common.h>
 #include <vector>
 #include <fstream>
 #include <filesystem>
-#include <glslang/Public/ShaderLang.h>
-#include <SPIRV/GlslangToSpv.h>
-#include <StandAlone/DirStackFileIncluder.h>
 #include <stdexcept>
 #include "cxxopts.hpp"
 #include "stlext.hpp"
