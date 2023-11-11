@@ -32,26 +32,26 @@ namespace psc
         SFT_ShaderSrc = SFT_glsl | SFT_hlsl,
         SFT_Config = SFT_yaml | SFT_json | SFT_xml | SFT_toml
     };
-    using PlatformType = uint32_t;
-    enum PlatformType_ : uint32_t
+
+    enum class ApiPlatformType : uint32_t
     {
-        PlatformType_None,
-        PlatformType_Generic = 1,
-        PlatformType_Vulkan = 1 << 1,
-        PlatformType_Direct3D = 1 << 2,
-        PlatformType_Metal = 1 << 3,
-        PlatformType_OpenGL = 1 << 4,
-        PlatformType_ALL = -1,
+        None,
+        Generic,
+        Vulkan ,
+        Direct3D,
+        Metal ,
+        OpenGL,
+        OpenGLES,
     };
-    inline const char* to_string(PlatformType_ type)
+    inline const char* to_string(ApiPlatformType type)
     {
         switch (type)
         {
-        case psc::PlatformType_None: return "None";
-        case psc::PlatformType_Vulkan: return "Vulkan";
-        case psc::PlatformType_Direct3D: return "Direct3D";
-        case psc::PlatformType_Metal: return "Metal";
-        case psc::PlatformType_OpenGL: return "OpenGL";
+        case ApiPlatformType::None: return "None";
+        case ApiPlatformType::Vulkan: return "Vulkan";
+        case ApiPlatformType::Direct3D: return "Direct3D";
+        case ApiPlatformType::Metal: return "Metal";
+        case ApiPlatformType::OpenGL: return "OpenGL";
         }
         return nullptr;
     }

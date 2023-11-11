@@ -1,14 +1,17 @@
 #pragma once
 #include "psc/ShaderCompiler.h"
-#include <glslang/Include/Common.h>
+
 #include <vector>
 #include <fstream>
 #include <filesystem>
-#include <glslang/Public/ShaderLang.h>
-#include <SPIRV/GlslangToSpv.h>
-#include <StandAlone/DirStackFileIncluder.h>
 #include <chrono>
 #include "IOHelper.hpp"
+
+#include "../glslang/glslang/Include/Common.h"
+#include "../glslang/glslang/Public/ShaderLang.h"
+#include "../glslang/SPIRV/GlslangToSpv.h"
+#include "../glslang/StandAlone/DirStackFileIncluder.h"
+#include "../spirv-cross/spirv_glsl.hpp"
 
 namespace psc
 {
@@ -128,14 +131,14 @@ namespace psc
             }
             return {};
         }
-        glslang::EShClient GetShClient(PlatformType type)
+        glslang::EShClient GetShClient(ApiPlatformType type)
         {
             switch (type)
             {
-            case PlatformType_Vulkan: return glslang::EShClient::EShClientVulkan;
-            case PlatformType_Direct3D: break;
-            case PlatformType_Metal: break;
-            case PlatformType_OpenGL: return glslang::EShClient::EShClientOpenGL;
+            case ApiPlatformType::Vulkan: return glslang::EShClient::EShClientVulkan;
+            case ApiPlatformType::Direct3D: break;
+            case ApiPlatformType::Metal: break;
+            case ApiPlatformType::OpenGL: return glslang::EShClient::EShClientOpenGL;
             }
             return {};
         }
@@ -150,7 +153,7 @@ namespace psc
             }
             return {};
         }
-        virtual std::vector<char> CompileStage(const char* code, PlatformType platform, FilePartialType Stage, const CompileInfo& compileInfo)
+        virtual std::vector<char> CompileStage(const char* code, ApiPlatformType platform, FilePartialType Stage, const CompileInfo& compileInfo)
         {
             auto langStage = GetShLanguage(Stage);
             glslang::TShader shader(langStage);
@@ -159,16 +162,16 @@ namespace psc
             glslang::EShClient client = GetShClient(platform);
 
             int ClientInputSemanticsVersion = 100;
-            glslang::EShTargetClientVersion ClientVersion{};
+            glslang::EShTargetClientVersion ClientVersion = glslang::EShTargetVulkan_1_2;
 
-            if (client == glslang::EShClientVulkan)
-            {
-                ClientVersion = glslang::EShTargetVulkan_1_2;
-            }
-            else if (client == glslang::EShClientOpenGL)
-            {
-                ClientVersion = glslang::EShTargetOpenGL_450;
-            }
+            //if (client == glslang::EShClientVulkan)
+            //{
+            //    ClientVersion = glslang::EShTargetVulkan_1_2;
+            //}
+            //else if (client == glslang::EShClientOpenGL)
+            //{
+            //    ClientVersion = glslang::EShTargetOpenGL_450;
+            //}
 
             glslang::EShTargetLanguageVersion TargetVersion = glslang::EShTargetSpv_1_3;
 
@@ -240,6 +243,27 @@ namespace psc
             std::vector<char> spirData(SpirV.size() * sizeof(int));
             memcpy(spirData.data(), SpirV.data(), SpirV.size() * sizeof(int));
 
+            if (platform == ApiPlatformType::OpenGL)
+            {
+                namespace spvc = spirv_cross;
+                spvc::CompilerGLSL glsl{ SpirV };
+
+                spvc::CompilerGLSL::Options options;
+                options.version = 310;
+                options.es = true;
+
+                glsl.set_common_options(options);
+
+                auto glslCode = glsl.compile();
+
+                return std::vector<char>(glslCode.begin(), glslCode.end());
+            }
+            else if (platform == ApiPlatformType::OpenGLES)
+            {
+
+            }
+
+
             return spirData;
         }
 
@@ -306,7 +330,7 @@ namespace psc
         virtual void CompileShader(
             std::filesystem::path shPath,
             CompileInfo compileInfo,
-            const std::vector<PlatformType_>& targetPlatforms,
+            const std::vector<ApiPlatformType>& targetPlatforms,
             std::ostream& out)
         {
             auto begintime = std::chrono::high_resolution_clock::now();
@@ -334,7 +358,7 @@ namespace psc
                 binf::BinaryResourceInfo info;
                 memset(&info, 0, sizeof(info));
                 info.Type = SFT_Config;
-                info.Platform = PlatformType_Generic;
+                info.Platform = (uint32_t)ApiPlatformType::Generic;
                 strcpy(info.Name, "sh.cfg");
                 info.Offset = dataChunkOffset;
 

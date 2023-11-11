@@ -12,12 +12,12 @@ namespace psc
     struct ShaderInfo
     {
         std::string Name;
-        PlatformType Platform;
+        ApiPlatformType Platform;
         FilePartialType Partial;
         std::vector<char> Data;
     };
 
-    inline std::vector<ShaderInfo> ReadShaderPackage(std::istream& stream, PlatformType filter = PlatformType_ALL)
+    inline std::vector<ShaderInfo> ReadShaderPackage(std::istream& stream, std::vector<ApiPlatformType> filter)
     {
         auto beginPos = stream.tellg();
 
@@ -36,9 +36,9 @@ namespace psc
         for (auto& info : infos)
         {
             auto partialType = (psc::FilePartialType)info.Type;
-            auto platformType = (psc::PlatformType)info.Platform;
+            auto platformType = (psc::ApiPlatformType)info.Platform;
            
-            if (!(filter & platformType))
+            if (std::find(filter.begin(), filter.end(), platformType) == filter.end())
             {
                 continue;
             }

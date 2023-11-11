@@ -15,15 +15,16 @@
 
 namespace psc
 {
-    std::shared_ptr<ShaderCompiler> CreateShaderCompiler(PlatformType_ platform)
+    std::shared_ptr<ShaderCompiler> CreateShaderCompiler(ApiPlatformType platform)
     {
         switch (platform)
         {
-        case psc::PlatformType_Vulkan:
-        case psc::PlatformType_OpenGL:
+        case ApiPlatformType::Vulkan:
+        case ApiPlatformType::OpenGL:
+        case ApiPlatformType::OpenGLES:
             return std::make_shared<GlslangCompilerImpl>();
             break;
-        case psc::PlatformType_Direct3D:
+        case ApiPlatformType::Direct3D:
             //return std::make_shared<DxcCompilerImpl>();
         default:
             throw 0;
@@ -35,12 +36,13 @@ namespace psc
 
 using namespace psc;
 
-static PlatformType_ _GetPlatformType(std::string name)
+static ApiPlatformType _GetPlatformType(std::string name)
 {
-    if (name == "vulkan") return PlatformType_Vulkan;
-    if (name == "direct3d") return PlatformType_Direct3D;
-    if (name == "opengl") return PlatformType_OpenGL;
-    if (name == "metal") return PlatformType_Metal;
+    if (name == "vulkan") return ApiPlatformType::Vulkan;
+    if (name == "direct3d") return ApiPlatformType::Direct3D;
+    if (name == "opengl") return ApiPlatformType::OpenGL;
+    if (name == "opengles") return ApiPlatformType::OpenGLES;
+    if (name == "metal") return ApiPlatformType::Metal;
     return {};
 }
 
@@ -93,11 +95,11 @@ int main(int argc, char* argv[])
             compileInfo.PreDefines = result["defines"].as<std::vector<std::string>>();
         }
 
-        std::vector<PlatformType_> targetPlatforms;
+        std::vector<ApiPlatformType> targetPlatforms;
         for (auto& item : inPlatforms)
         {
             auto platform = _GetPlatformType(item);
-            if (platform == PlatformType_None)
+            if (platform == ApiPlatformType::None)
             {
                 cerr << "ERR: platform not found. " << item;
                 return 1;

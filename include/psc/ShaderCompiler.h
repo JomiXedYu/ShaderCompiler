@@ -24,17 +24,17 @@ namespace psc
     public:
         virtual std::vector<char> CompileStage(
             const char* code, 
-            PlatformType platform, 
+            ApiPlatformType platform, 
             FilePartialType Stage, 
             const CompileInfo& compileInfo) = 0;
 
         virtual void CompileShader(
             std::filesystem::path shPath,
             CompileInfo compileInfo,
-            const std::vector<PlatformType_>& TargetPlatforms,
+            const std::vector<ApiPlatformType>& TargetPlatforms,
             std::ostream& out) = 0;
 
     };
 
-    extern __declspec(dllexport) std::shared_ptr<ShaderCompiler> CreateShaderCompiler(PlatformType_ platform);
+    extern __declspec(dllexport) std::shared_ptr<ShaderCompiler> CreateShaderCompiler(ApiPlatformType platform);
 }
